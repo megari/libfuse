@@ -1325,6 +1325,17 @@ struct fuse_lowlevel_ops {
 	void (*tmpfile) (fuse_req_t req, fuse_ino_t parent,
 			mode_t mode, struct fuse_file_info *fi);
 
+
+	/**
+	 * Sync all open files on a filesystem.
+	 *
+	 * Valid replies:
+	 *   fuse_reply_err
+	 *
+	 * @param req request handle
+	 * @param ino the inode number, zero means "undefined"
+	 */
+	void (*syncfs) (fuse_req_t req, fuse_ino_t ino);
 };
 
 /**

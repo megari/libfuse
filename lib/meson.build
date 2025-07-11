@@ -13,7 +13,7 @@ endif
 deps = [ thread_dep ]
 if private_cfg.get('HAVE_ICONV')
    libfuse_sources += [ 'modules/iconv.c' ]
-   libiconv = cc.find_library('iconv', required: false)
+   libiconv = dependency('iconv', required: false)
    if libiconv.found()
       deps += [ libiconv ]
    endif

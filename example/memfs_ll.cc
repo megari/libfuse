@@ -1041,6 +1041,12 @@ static void memfs_statfs(fuse_req_t req, [[maybe_unused]] fuse_ino_t ino)
 	fuse_reply_statfs(req, &stbuf);
 }
 
+static void memfs_syncfs(fuse_req_t req, [[maybe_unused]] fuse_ino_t ino)
+{
+	// Simply indicate success for now.
+	fuse_reply_err(req, 0);
+}
+
 static const struct fuse_lowlevel_ops memfs_oper = {
 	.init = nullptr,
 	.destroy = nullptr,
@@ -1087,6 +1093,7 @@ static const struct fuse_lowlevel_ops memfs_oper = {
 	.copy_file_range = nullptr,
 	.lseek = nullptr,
 	.tmpfile = nullptr,
+	.syncfs = memfs_syncfs,
 };
 
 int main(int argc, char *argv[])

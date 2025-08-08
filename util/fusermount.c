@@ -47,6 +47,7 @@
 static const char *progname;
 
 static int user_allow_other = 0;
+static int user_enable_syncfs = 0;
 static int mount_max = 1000;
 
 static int auto_unmount = 0;
@@ -627,6 +628,8 @@ static void parse_line(char *line, int linenum)
 	int tmp;
 	if (strcmp(line, "user_allow_other") == 0)
 		user_allow_other = 1;
+	else if (strcmp(line, "user_enable_syncfs") == 0)
+		user_enable_syncfs = 1;
 	else if (sscanf(line, "mount_max = %i", &tmp) == 1)
 		mount_max = tmp;
 	else if(line[0])
@@ -921,6 +924,22 @@ static int do_mount(const char *mnt, const char **typep, mode_t rootmode,
 				fprintf(stderr, "%s: option %.*s only allowed if 'user_allow_other' is set in %s\n", progname, len, s, FUSE_CONF);
 				goto err;
 			}
+			if (getuid() != 0 && !user_enable_syncfs &&
+			    opt_eq(s, len, "enable_syncfs")) {
+				struct utsname utsname;
+				unsigned kmaj, kmin;
+				res = uname(&utsname);
+				if (res == 0 &&
+				    sscanf(utsname.release, "%u.%u",
+					   &kmaj, &kmin) == 2 &&
+				    (kmaj > 6 || (kmaj == 6 && kmin > 18))) {
+					fprintf(stderr, "%s: note: 'enable_syncfs' mount option is not supported for %u.%u kernels\n", progname, kmaj, kmin);
+					skip_option = 1;
+				} else {
+					fprintf(stderr, "%s: option %.*s only allowed if 'user_enable_syncfs' is set in %s\n", progname, len, s, FUSE_CONF);
+					goto err;
+				}
+			}
 			if (!skip_option) {
 				if (find_mount_flag(s, len, &on, &flag)) {
 					if (on)
@@ -929,6 +948,7 @@ static int do_mount(const char *mnt, const char **typep, mode_t rootmode,
 						flags  &= ~flag;
 				} else if (opt_eq(s, len, "default_permissions") ||
 					   opt_eq(s, len, "allow_other") ||
+					   opt_eq(s, len, "enable_syncfs") ||
 					   begins_with(s, "max_read=") ||
 					   begins_with(s, "blksize=")) {
 					memcpy(d, s, len);

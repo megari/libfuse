@@ -69,6 +69,7 @@ struct mount_opts {
 	int flags;
 	int auto_unmount;
 	int blkdev;
+	int enable_syncfs;
 	char *fsname;
 	char *subtype;
 	char *subtype_opt;
@@ -84,10 +85,12 @@ static const struct fuse_opt fuse_mount_opts[] = {
 	FUSE_MOUNT_OPT("allow_other",		allow_other),
 	FUSE_MOUNT_OPT("blkdev",		blkdev),
 	FUSE_MOUNT_OPT("auto_unmount",		auto_unmount),
+	FUSE_MOUNT_OPT("enable_syncfs",		enable_syncfs),
 	FUSE_MOUNT_OPT("fsname=%s",		fsname),
 	FUSE_MOUNT_OPT("max_read=%u",		max_read),
 	FUSE_MOUNT_OPT("subtype=%s",		subtype),
 	FUSE_OPT_KEY("allow_other",		KEY_KERN_OPT),
+	FUSE_OPT_KEY("enable_syncfs",		KEY_KERN_OPT),
 	FUSE_OPT_KEY("auto_unmount",		KEY_FUSERMOUNT_OPT),
 	FUSE_OPT_KEY("blkdev",			KEY_FUSERMOUNT_OPT),
 	FUSE_OPT_KEY("fsname=",			KEY_FUSERMOUNT_OPT),

@@ -2082,7 +2082,6 @@ bool fuse_get_feature_flag(struct fuse_conn_info *conn,
 	return conn->capable_ext & flag ? true : false;
 }
 
-
 /* Prevent bogus data races (bogus since "init" is called before
  * multi-threading becomes relevant */
 static __attribute__((no_sanitize("thread")))

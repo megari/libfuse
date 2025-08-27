@@ -929,10 +929,11 @@ static int do_mount(const char *mnt, const char **typep, mode_t rootmode,
 				struct utsname utsname;
 				unsigned kmaj, kmin;
 				res = uname(&utsname);
-				if (res == 0 &&
+				if (0 && /* No released kernel version has this feature yet, so don't bother to check. */
+				    res == 0 &&
 				    sscanf(utsname.release, "%u.%u",
 					   &kmaj, &kmin) == 2 &&
-				    (kmaj > 6 || (kmaj == 6 && kmin > 18))) {
+				    (kmaj > 6 || (kmaj == 6 && kmin > 18))) { /* Deliberately use a nonsensical kernel version requirement. */
 					fprintf(stderr, "%s: note: 'enable_syncfs' mount option is not supported for %u.%u kernels\n", progname, kmaj, kmin);
 					skip_option = 1;
 				} else {

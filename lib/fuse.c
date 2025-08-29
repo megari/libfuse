@@ -2363,6 +2363,17 @@ off_t fuse_fs_lseek(struct fuse_fs *fs, const char *path, off_t off, int whence,
 	}
 }
 
+int fuse_fs_syncfs(struct fuse_fs *fs, const char *path)
+{
+	if (fs->op.syncfs) {
+		if (fs->debug)
+			fuse_log(FUSE_LOG_DEBUG, "syncfs[%s]\n", path);
+		return fs->op.syncfs(path);
+	} else {
+		return -ENOSYS;
+	}
+}
+
 static int is_open(struct fuse *f, fuse_ino_t dir, const char *name)
 {
 	struct node *node;
@@ -4412,6 +4423,26 @@ static void fuse_lib_lseek(fuse_req_t req, fuse_ino_t ino, off_t off, int whence
 		reply_err(req, res);
 }
 
+static void fuse_lib_syncfs(fuse_req_t req, fuse_ino_t ino)
+{
+	struct fuse *f = req_fuse_prepare(req);
+	char *path = NULL;
+	int err = 0;
+
+	if (ino)
+		err = get_path(f, ino, &path);
+
+	if (!err) {
+		struct fuse_intr_data d;
+
+		fuse_prepare_interrupt(f, req, &d);
+		err = fuse_fs_syncfs(f->fs, path ? path : "/");
+		fuse_finish_interrupt(f, req, &d);
+		free_path(f, ino, path);
+	}
+	reply_err(req, err);
+}
+
 static int clean_delay(struct fuse *f)
 {
 	/*
@@ -4510,6 +4541,7 @@ static struct fuse_lowlevel_ops fuse_path_ops = {
 	.fallocate = fuse_lib_fallocate,
 	.copy_file_range = fuse_lib_copy_file_range,
 	.lseek = fuse_lib_lseek,
+	.syncfs = fuse_lib_syncfs,
 };
 
 int fuse_notify_poll(struct fuse_pollhandle *ph)

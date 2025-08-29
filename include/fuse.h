@@ -850,6 +850,11 @@ struct fuse_operations {
 	 * Find next data or hole after the specified offset
 	 */
 	off_t (*lseek) (const char *, off_t off, int whence, struct fuse_file_info *);
+
+	/**
+	 * Synchronize file system
+	 */
+	int (*syncfs) (const char *);
 };
 
 /** Extra context that may be needed by some filesystems
@@ -1344,6 +1349,7 @@ ssize_t fuse_fs_copy_file_range(struct fuse_fs *fs, const char *path_in,
 				size_t len, int flags);
 off_t fuse_fs_lseek(struct fuse_fs *fs, const char *path, off_t off, int whence,
 		    struct fuse_file_info *fi);
+int fuse_fs_syncfs(struct fuse_fs *fs, const char *path);
 void fuse_fs_init(struct fuse_fs *fs, struct fuse_conn_info *conn,
 		struct fuse_config *cfg);
 void fuse_fs_destroy(struct fuse_fs *fs);
